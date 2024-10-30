@@ -126,6 +126,7 @@ exports.forgotPassword = async (req, res) => {
     console.error("Error in forgotPassword:", error);
     res.status(500).send({
       message: "Error processing request",
+      error: error.message,
     });
   }
 };
