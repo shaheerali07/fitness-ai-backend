@@ -1,6 +1,6 @@
 require("dotenv").config();
 const nodemailer = require("nodemailer");
-
+const { exec } = require("child_process");
 const jwt = require("jsonwebtoken");
 exports.test = (req, res) => {
   res.send("Welcome to fitness 1.3");
