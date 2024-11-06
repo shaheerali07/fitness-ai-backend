@@ -1,0 +1,32 @@
+name: Deploy and Seed
+
+on:
+  push:
+    branches:
+      - main # You can change this to the branch of your choice
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16" # Specify your Node.js version
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Deploy to Vercel
+        run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Run seed script
+        run: npm run seed:dietmenu
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
