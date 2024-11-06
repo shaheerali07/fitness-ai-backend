@@ -8,6 +8,8 @@ exports.test = (req, res) => {
 
 exports.signup = async (req, res) => {
   const user = require("../model/users");
+  const parseExcelData = require("../utils/excelParser");
+  const jsonData = parseExcelData();
   const newData = req.body;
   const { username, password, email, height, weight } = newData;
   // Check if the username or email is already in use
@@ -32,7 +34,7 @@ exports.signup = async (req, res) => {
       const newUser = new user(newData);
       newUser
         .save()
-        .then((savedUser) => {
+        .then(async (savedUser) => {
           // Generate JWT token without expiry
           const token = jwt.sign(
             {
@@ -41,6 +43,43 @@ exports.signup = async (req, res) => {
             },
             process.env.JWT_SECRET // Secret key from environment variables
           );
+
+          // for (const row of jsonData) {
+          //   // Accessing columns with exact key names (based on inspection of console logs)
+          //   const foodName = row["__EMPTY_1"] || "";
+          //   const kcal = row["Energi (kcal)"] || null;
+          //   const protein = row["Protein"] || null;
+          //   const water = row["Vand"] || null;
+          //   const mineral = row["Mineral"] || 0;
+
+          //   // Check if all values are non-null and have valid data
+          //   if (
+          //     foodName &&
+          //     kcal !== null &&
+          //     protein !== null &&
+          //     water !== null &&
+          //     mineral !== null
+          //   ) {
+          //     // Create and save only if all fields have valid values
+          //     const newDietItem = new dietMenu({
+          //       foodName,
+          //       kcal,
+          //       protein,
+          //       water,
+          //       mineral,
+          //     });
+          //     await newDietItem.save();
+          //   } else {
+          //     // Log rows that are incomplete
+          //     console.log("Incomplete Data Skipped:", {
+          //       foodName,
+          //       kcal,
+          //       protein,
+          //       water,
+          //       mineral,
+          //     });
+          //   }
+          // }
           res.send({
             message: "success",
             token,

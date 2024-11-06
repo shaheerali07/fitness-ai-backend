@@ -191,6 +191,7 @@ exports.getDietPlan = async (req, res) => {
 
 exports.setDietMenu = async (req, res) => {
   const dietMenu = require("../model/dietmenu");
+
   const dietFood = req.body;
   const { foodName, kcal, protein, water, mineral } = dietFood;
   const result = await dietMenu.findOne({ foodName, kcal });
