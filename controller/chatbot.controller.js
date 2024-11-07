@@ -1,6 +1,7 @@
 const openai = require("openai");
 const config = require("../env/config");
 const User = require("../model/users");
+const ChatHistory = require("../model/chat");
 require("dotenv").config();
 
 exports.askMe = async (req, res) => {
@@ -185,10 +186,62 @@ exports.askMe = async (req, res) => {
       model: "gpt-3.5-turbo",
     });
 
+  // Find the existing chat history for the user
+  let chatHistory = await ChatHistory.findOne({ userId: userData._id });
+
+  if (!chatHistory) {
+    // If chat history doesn't exist, create a new one
+    chatHistory = new ChatHistory({
+      userId: userData._id,
+      messages: [
+        {
+          sender: "user",
+          message: req.query.question,
+        },
+        {
+          sender: "ai",
+          message: chatCompletion.choices[0].message.content,
+        }
+      ]
+    });
+  } else {
+    // If chat history exists, push the new messages into the existing array
+    chatHistory.messages.push({
+      sender: "user",
+      message: req.query.question,
+    });
+    chatHistory.messages.push({
+      sender: "ai",
+      message: chatCompletion.choices[0].message.content,
+    });
+  }
+
+  // Save the updated chat history
+  await chatHistory.save();
     // Send the AI's response back to the client
     res.send(chatCompletion.choices[0].message.content);
   } catch (error) {
     console.error("Error creating completion:", error);
     res.status(500).send("An error occurred while processing your request.");
+  }
+};
+
+
+exports.getChatHistory = async (req, res) => {
+  try {
+    const userId = req.query.userId;
+
+    // Fetch all chat history for the given user
+    const chatHistory = await ChatHistory.findOne({ userId }).sort({ createdAt: 1 }).exec();
+
+    if (!chatHistory || chatHistory.length === 0) {
+      return res.status(404).send("No chat history found for this user.");
+    }
+
+    // Return the chat history in the response
+    res.status(200).json(chatHistory);
+  } catch (error) {
+    console.error("Error fetching chat history:", error);
+    res.status(500).send("An error occurred while fetching the chat history.");
   }
 };
