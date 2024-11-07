@@ -218,6 +218,7 @@ exports.signin = async (req, res) => {
           profilePic: result.profilePicture,
           token,
           message: "success",
+          id: result._id,
         });
       } else {
         res.json({
