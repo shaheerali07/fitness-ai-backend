@@ -232,7 +232,7 @@ exports.getChatHistory = async (req, res) => {
     const userId = req.query.userId;
 
     // Fetch all chat history for the given user
-    const chatHistory = await ChatHistory.findById(userId).sort({ createdAt: 1 }).exec();
+    const chatHistory = await ChatHistory.findOne({ userId }).sort({ createdAt: 1 }).exec();
 
     if (!chatHistory || chatHistory.length === 0) {
       return res.status(404).send("No chat history found for this user.");
