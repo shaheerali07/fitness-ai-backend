@@ -186,8 +186,13 @@ exports.askMe = async (req, res) => {
       model: "gpt-3.5-turbo",
     });
 
-    const chatHistory = new ChatHistory({
-      userId: userData._id,  // Assuming userData contains the user's _id
+  // Find the existing chat history for the user
+  let chatHistory = await ChatHistory.findOne({ userId: userData._id });
+
+  if (!chatHistory) {
+    // If chat history doesn't exist, create a new one
+    chatHistory = new ChatHistory({
+      userId: userData._id,
       messages: [
         {
           sender: "user",
@@ -197,11 +202,22 @@ exports.askMe = async (req, res) => {
           sender: "ai",
           message: chatCompletion.choices[0].message.content,
         }
-      ],
+      ]
     });
+  } else {
+    // If chat history exists, push the new messages into the existing array
+    chatHistory.messages.push({
+      sender: "user",
+      message: req.query.question,
+    });
+    chatHistory.messages.push({
+      sender: "ai",
+      message: chatCompletion.choices[0].message.content,
+    });
+  }
 
-    // Save the chat history in the database
-    await chatHistory.save();
+  // Save the updated chat history
+  await chatHistory.save();
     // Send the AI's response back to the client
     res.send(chatCompletion.choices[0].message.content);
   } catch (error) {
