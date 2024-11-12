@@ -8,8 +8,6 @@ exports.test = (req, res) => {
 
 exports.signup = async (req, res) => {
   const user = require("../model/users");
-  const parseExcelData = require("../utils/excelParser");
-  const jsonData = parseExcelData();
   const newData = req.body;
   const { username, password, email, height, weight } = newData;
   // Check if the username or email is already in use

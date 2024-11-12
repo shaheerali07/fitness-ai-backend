@@ -386,3 +386,53 @@ exports.getTargetKcal = async (req, res) => {
     });
   }
 };
+
+exports.seeddietmenu = async (req, res) => {
+  const parseExcelData = require("../utils/excelParser");
+  const DietMenu = require("../model/dietmenu");
+  try {
+    const count = await DietMenu.countDocuments();
+    if (count > 0) {
+      console.log("Diet menu data already exists. Skipping seeding.");
+      res
+        .status(400)
+        .send({ message: "Diet menu data already exists. Skipping seeding." });
+      return;
+    }
+    // Parse the Excel data
+    const jsonData = parseExcelData();
+    const dietMenuData = jsonData
+      .map((row) => {
+        const foodName = row["__EMPTY_1"] || "";
+        const kcal = row["Energi (kcal)"] || null;
+        const protein = row["Protein"] || null;
+        const water = row["Vand"] || null;
+        const mineral = row["Mineral"] || 0;
+
+        if (
+          foodName &&
+          kcal !== null &&
+          protein !== null &&
+          water !== null &&
+          mineral !== null
+        ) {
+          return {
+            foodName,
+            kcal,
+            protein,
+            water,
+            mineral,
+          };
+        }
+      })
+      .filter(Boolean); // Filter out any undefined entries (incomplete rows)
+
+    // Insert the data
+    await DietMenu.insertMany(dietMenuData);
+    console.log("Diet menu data seeded successfully.");
+    res.send({ message: "Diet menu data seeded successfully" });
+  } catch (error) {
+    console.error("Error seeding diet menu data:", error);
+    res.status(500).send({ message: "Error seeding diet menu data" });
+  }
+};

@@ -9,6 +9,11 @@ router.post(
   dietCtrl.setDietMenu
 );
 router.post(
+  "/seeddietmenu",
+  adminMiddleware.authenticateJWT,
+  dietCtrl.seeddietmenu
+);
+router.post(
   "/settargetkcal",
   adminMiddleware.authenticateJWT,
   dietCtrl.setTargetKcal
