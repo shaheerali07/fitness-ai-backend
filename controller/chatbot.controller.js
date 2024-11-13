@@ -1,7 +1,12 @@
 const openai = require("openai");
-const config = require("../env/config");
 const User = require("../model/users");
 const ChatHistory = require("../model/chat");
+const {
+  EXERCISES,
+  dietKeywords,
+  fitnessKeywords,
+  exerciseKeywords,
+} = require("../static/data");
 require("dotenv").config();
 
 exports.askMe = async (req, res) => {
@@ -35,139 +40,202 @@ exports.askMe = async (req, res) => {
       medicalConditions: userData.medicalConditions || "not provided",
       medication: userData.medication || "not provided",
       workoutDuration: userData.workoutDuration || "not provided",
+      exercisePreferences: userData.exercisePreferences || [
+        "GYM EXERCISES",
+        "Stretches",
+        "Resistance Band",
+        "Exercise Ball",
+        "Dumbbells",
+        "Bodyweight",
+      ], // E.g.,
     };
-
     const userQuestion = req.query.question.toLowerCase();
+    const dietMenu = require("../model/dietmenu");
+    const foodData = await dietMenu.aggregate([
+      {
+        $match: {},
+      },
+      {
+        $group: {
+          _id: {
+            foodName: "$foodName",
+            kcal: "$kcal",
+          },
+        },
+      },
+      {
+        $sort: {
+          "_id.foodName": -1,
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          foodName: "$_id.foodName",
+          kcal: "$_id.kcal",
+        },
+      },
+    ]);
+    function generateDietPlan(foodData, userContext) {
+      const days = [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+      ];
+      const meals = ["Breakfast", "Snack 1", "Lunch", "Snack 2", "Dinner"];
+      let dietPlan = "";
 
-    // Keywords to determine if the question is related to fitness
-    const fitnessKeywords = [
-      "fitness",
-      "exercise",
-      "workout",
-      "diet",
-      "muscle",
-      "weight loss",
-      "gain weight",
-      "nutrition",
-      "training",
-      "strength",
-    ];
-    // Keywords to identify diet-related questions
-    const dietKeywords = ["diet", "diet plan", "meal", "nutrition", "dietary"];
-    const exerciseKeywords = [
-      "exercise",
-      "workout plan",
-      "gym",
-      "training",
-      "routine",
-    ];
+      days.forEach((day) => {
+        dietPlan += `<tr><td>${day}</td>`;
+        meals.forEach((meal) => {
+          const food = selectFoodForMeal(foodData, userContext);
+          dietPlan += `<td>${food.foodName} (${parseInt(food.kcal)} kcal)</td>`;
+        });
+        dietPlan += `</tr>`;
+      });
+
+      return dietPlan;
+    }
+
+    function selectFoodForMeal(foodData, userContext) {
+      const suitableFoods = foodData.filter((food) => {
+        if (userContext.fitnessGoal === "Lose weight") {
+          return food.kcal <= 300;
+        } else if (userContext.fitnessGoal === "Gain muscle") {
+          return food.kcal >= 300;
+        } else {
+          return food.kcal >= 150 && food.kcal <= 500;
+        }
+      });
+
+      if (suitableFoods.length === 0) {
+        return { foodName: "Default Food", kcal: 0 };
+      }
+
+      const randomIndex = Math.floor(Math.random() * suitableFoods.length);
+      return suitableFoods[randomIndex];
+    }
+    function generateExercisePlan(exerciseData, userContext) {
+      const days = [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+      ];
+      const workoutSessions = ["Warm-up", "Main Exercise", "Cool-down"];
+      let exercisePlan = "";
+
+      days.forEach((day) => {
+        exercisePlan += `<tr><td>${day}</td>`;
+        workoutSessions.forEach((session) => {
+          const exercise = selectExerciseForSession(EXERCISES, userContext);
+          exercisePlan += `<td>${exercise}</td>`;
+        });
+        exercisePlan += `</tr>`;
+      });
+
+      return exercisePlan;
+    }
+    function selectExerciseForSession(exerciseData, userContext) {
+      // Filter categories based on user preferences
+      const suitableCategories = exerciseData.kinds.filter((category) =>
+        userContext.exercisePreferences.includes(category.category)
+      );
+
+      if (suitableCategories.length === 0) {
+        return "No exercises available"; // Edge case if preferences don't match
+      }
+
+      // Randomly select a category that matches preferences
+      const randomCategory =
+        suitableCategories[
+          Math.floor(Math.random() * suitableCategories.length)
+        ];
+
+      // Randomly select an exercise from the chosen category
+      const exercises = Array.isArray(randomCategory.exercises)
+        ? randomCategory.exercises // Flat list of exercises (e.g., Stretches)
+        : Object.values(randomCategory.exercises).flat(); // Nested exercises by muscle groups (e.g., Gym Exercises)
+
+      const randomExercise =
+        exercises[Math.floor(Math.random() * exercises.length)];
+
+      return randomExercise;
+    }
 
     // Check if the question is fitness-related
     const isFitnessRelated = fitnessKeywords.some((keyword) =>
       userQuestion.includes(keyword)
     );
-    const isDietRelated = dietKeywords.some((keyword) =>
-      userQuestion.includes(keyword)
-    );
+
     const isExerciseRelated = exerciseKeywords.some((keyword) =>
       userQuestion.includes(keyword)
     );
     // Define the prompt based on whether the question is fitness-related
     let prompt = `
-      Note: You need to carefully analyze the user's question. Respond appropriately based on the content of the question. 
-      If the user is not asking anything related to fitness, respond in a general friendly manner without providing fitness-related information. 
-      If the question is related to fitness, use the user's fitness context to provide a tailored response.
+    Note: Only use foods from the provided foodData. If no suitable food is available, do not suggest food outside the provided list. 
+      Respond in HTML format with a structured table for the diet plan if the user asks about diet. 
 
-      User Question: ${req.query.question}
+      User's Question: ${req.query.question}
     `;
 
-    if (isDietRelated) {
-      // Generate a diet plan response in HTML format with a table
+    if (dietKeywords.some((keyword) => userQuestion.includes(keyword))) {
+      const dietPlanHtml = `
+        <table>
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Breakfast</th>
+              <th>Snack 1</th>
+              <th>Lunch</th>
+              <th>Snack 2</th>
+              <th>Dinner</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${generateDietPlan(foodData, userContext)}
+          </tbody>
+        </table>
+      `;
+
       prompt += `
-      The user is asking for a diet plan. Use the following user's context to generate a diet plan:
-      - Weight: ${userContext.weight} kg
-      - Goal Weight: ${userContext.goalWeight} kg
-      - Height: ${userContext.height}
-      - Fitness Goal: ${userContext.fitnessGoal}
+      The user requested a diet plan. Generate the following structured diet plan with only the foods from the provided list:
 
-      Ensure to use valid HTML tags like <table>, <thead>, <tbody>, <tr>, <th>, and <td> to structure the table.
-
-      Example:
-      <table>
-        <thead>
-          <tr>
-            <th>Day</th>
-            <th>Breakfast</th>
-            <th>Snack 1</th>
-            <th>Lunch</th>
-            <th>Snack 2</th>
-            <th>Dinner</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Monday</td>
-            <td>Oatmeal with fruits</td>
-            <td>Almonds</td>
-            <td>Grilled chicken with quinoa</td>
-            <td>Greek yogurt</td>
-            <td>Salmon with steamed vegetables</td>
-          </tr>
-          <!-- Repeat for all 7 days -->
-        </tbody>
-      </table>
-
-      Respond in this format if the user asks for a diet plan.
+      ${dietPlanHtml}
       `;
     } else if (isExerciseRelated) {
-      // Generate an exercise plan response in HTML format with a table
-      prompt += `
-      The user is asking for an exercise plan. Use the following user's context to generate an exercise plan:
-      - Weight: ${userContext.weight} kg
-      - Goal Weight: ${userContext.goalWeight} kg
-      - Height: ${userContext.height}
-      - Fitness Goal: ${userContext.fitnessGoal}
-      - Exercise Days: ${userContext.exerciseDays}
-      - Workout Duration: ${userContext.workoutDuration}
-      - Activity Level: ${userContext.activityLevel}
-      - Exercise Limitations: ${userContext.exerciseLimitations}
-      - Medical Conditions: ${userContext.medicalConditions}
-      - Medication: ${userContext.medication}
-      - Dietary Preferences: ${userContext.dietaryPreferences}
-      - Calorie Intake: ${userContext.calorieIntake}
+      prompt = `
+      Note: Only use exercises from the provided exerciseData. Do not suggest exercises outside this list. 
+      Respond in HTML format with a structured table for the exercise plan if the user asks about exercise. 
 
-      Ensure to use valid HTML tags like <table>, <thead>, <tbody>, <tr>, <th>, and <td> to structure the table.
-
-      Example:
+      User's Question: ${req.query.question}
+    `;
+      const exercisePlanHtml = `
       <table>
         <thead>
           <tr>
             <th>Day</th>
-            <th>Exercise 1</th>
-            <th>Exercise 2</th>
-            <th>Exercise 3</th>
-            <th>Exercise 4</th>
+            <th>Warm-up</th>
+            <th>Main Exercise</th>
+            <th>Cool-down</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>Monday</td>
-            <td>Squats</td>
-            <td>Bench Press</td>
-            <td>Deadlifts</td>
-            <td>Plank</td>
-          </tr>
-          <tr>
-            <td>Tuesday</td>
-            <td>Push-ups</td>
-            <td>Pull-ups</td>
-            <td>Lunges</td>
-            <td>Bicep Curls</td>
-          </tr>
-          <!-- Repeat for all 7 days -->
+          ${generateExercisePlan(EXERCISES, userContext)}
         </tbody>
       </table>
-      `;
+    `;
+      prompt += `
+    The user requested an exercise plan. Generate the following structured exercise plan using only the exercises from the provided list:
+    ${exercisePlanHtml}
+    `;
     } else if (isFitnessRelated) {
       prompt += `
       The user has a fitness goal to ${userContext.fitnessGoal} and increase weight from ${userContext.weight} kg to ${userContext.goalWeight} kg. 
@@ -186,53 +254,100 @@ exports.askMe = async (req, res) => {
       model: "gpt-3.5-turbo",
     });
 
-  // Find the existing chat history for the user
-  let chatHistory = await ChatHistory.findOne({ userId: userData._id });
+    // Find the existing chat history for the user
+    let chatHistory = await ChatHistory.findOne({ userId: userData._id });
 
-  if (!chatHistory) {
-    // If chat history doesn't exist, create a new one
-    chatHistory = new ChatHistory({
-      userId: userData._id,
-      messages: [
-        {
-          sender: "user",
-          message: req.query.question,
-        },
-        {
-          sender: "ai",
-          message: chatCompletion.choices[0].message.content,
-        }
-      ]
-    });
-  } else {
-    // If chat history exists, push the new messages into the existing array
-    chatHistory.messages.push({
-      sender: "user",
-      message: req.query.question,
-    });
-    chatHistory.messages.push({
-      sender: "ai",
-      message: chatCompletion.choices[0].message.content,
-    });
-  }
+    if (!chatHistory) {
+      // Initialize shouldSave and saveType
+      let shouldSave = false;
+      let saveType = "";
 
-  // Save the updated chat history
-  await chatHistory.save();
+      // Check if any dietKeywords are present in the userQuestion
+      if (dietKeywords.some((keyword) => userQuestion.includes(keyword))) {
+        shouldSave = true;
+        saveType = "diet";
+      }
+      if (isExerciseRelated) {
+        shouldSave = true;
+        saveType = "exercise";
+      }
+      // If chat history doesn't exist, create a new one
+      chatHistory = new ChatHistory({
+        userId: userData._id,
+        messages: [
+          {
+            sender: "user",
+            message: req.query.question,
+          },
+          {
+            sender: "ai",
+            message: chatCompletion.choices[0].message.content,
+            ...(shouldSave && { shouldSave, saveType }),
+          },
+        ],
+      });
+    } else {
+      // Initialize shouldSave and saveType
+      let shouldSave = false;
+      let saveType = "";
+
+      // Check if any dietKeywords are present in the userQuestion
+      if (dietKeywords.some((keyword) => userQuestion.includes(keyword))) {
+        shouldSave = true;
+        saveType = "diet";
+      }
+      if (isExerciseRelated) {
+        shouldSave = true;
+        saveType = "exercise";
+      }
+      // If chat history exists, push the new messages into the existing array
+      chatHistory.messages.push({
+        sender: "user",
+        message: req.query.question,
+      });
+      chatHistory.messages.push({
+        sender: "ai",
+        message: chatCompletion.choices[0].message.content,
+        ...(shouldSave && { shouldSave, saveType }),
+      });
+    }
+
+    // Save the updated chat history
+    await chatHistory.save();
     // Send the AI's response back to the client
-    res.send(chatCompletion.choices[0].message.content);
+    // Initialize shouldSave and saveType
+    let shouldSave = false;
+    let saveType = "";
+
+    // Check if any dietKeywords are present in the userQuestion
+    if (dietKeywords.some((keyword) => userQuestion.includes(keyword))) {
+      shouldSave = true;
+      saveType = "diet";
+    }
+    if (isExerciseRelated) {
+      shouldSave = true;
+      saveType = "exercise";
+    }
+    const response = {
+      message: chatCompletion.choices[0].message.content,
+      shouldSave,
+      saveType,
+    };
+    res.send(response);
   } catch (error) {
     console.error("Error creating completion:", error);
     res.status(500).send("An error occurred while processing your request.");
   }
 };
 
-
 exports.getChatHistory = async (req, res) => {
   try {
     const userId = req.query.userId;
 
     // Fetch all chat history for the given user
-    const chatHistory = await ChatHistory.findOne({ userId }).sort({ createdAt: 1 }).exec();
+    const chatHistory = await ChatHistory.findOne({ userId })
+      .sort({ createdAt: 1 })
+      .exec();
 
     if (!chatHistory || chatHistory.length === 0) {
       return res.status(404).send("No chat history found for this user.");
