@@ -23,4 +23,31 @@ router.get(
   exerciseCtrl.getWeeklyExerciseHistory
 );
 
+router.post(
+  "/updateexercise",
+  adminMiddleware.authenticateJWT,
+  exerciseCtrl.updateExercisePlan
+);
+
+router.get(
+  "/getCompletedExercisePercentage",
+  adminMiddleware.authenticateJWT,
+  exerciseCtrl.getCompletedExercisePercentage
+);
+router.get(
+  "/getTotalExerciseTime",
+  adminMiddleware.authenticateJWT,
+  exerciseCtrl.getTotalExerciseTime
+);
+router.get(
+  "/getWeeklyExerciseStats",
+  adminMiddleware.authenticateJWT,
+  exerciseCtrl.getWeeklyExerciseStats
+);
+router.get(
+  "/getTotals",
+  adminMiddleware.authenticateJWT,
+  exerciseCtrl.getTotals
+);
+
 module.exports = router;

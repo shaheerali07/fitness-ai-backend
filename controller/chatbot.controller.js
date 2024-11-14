@@ -244,7 +244,7 @@ exports.askMe = async (req, res) => {
       `;
     } else {
       prompt += `
-      The user has not asked a fitness-related or diet-related question. Please respond warmly and engage in a friendly conversation without discussing fitness or diet topics.
+      The user has not asked a fitness-related or diet-related question. Please respond warmly and engage in a friendly conversation without discussing fitness or diet topics also dont use any <html><body> tags in response use simple p tag for normal discussion.
       `;
     }
 
