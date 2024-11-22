@@ -333,16 +333,20 @@ exports.getWeeklyTotalData = async (req, res) => {
 };
 
 exports.getWeeklyTotalStats = async (req, res) => {
-  const user = require("../model/users");
   const diet = require("../model/diet");
   const moment = require("moment"); // Moment.js is used to handle date manipulation.
 
-  const { startDate, endDate } = req.query;
+  const { startDate, endDate, userId } = req.query;
+  if (!userId) {
+    res.status(400).send({ message: "userId is required" });
+    return;
+  }
   // Parse the provided startDate and endDate from req.query to moment objects
   const startOfWeek = moment(startDate, "YYYY-MM-DD").startOf("day");
   const endOfWeek = moment(endDate, "YYYY-MM-DD").endOf("day");
 
   const dietMenus = await diet.find({
+    userid: userId,
     $or: [
       {
         year: startOfWeek.year(),

@@ -10,7 +10,6 @@ exports.setExerciseLogs = async (req, res) => {
   const header = newData.header;
   const updateData = newData.updateData;
 
-  console.log(updateData);
   const { email, password } = header;
 
   let state = true;
@@ -241,6 +240,9 @@ exports.getWeeklyExerciseHistory = async (req, res) => {
   const date = updateData.date;
 
   const userlist = await user.findOne({ email: email, password: password });
+  if (!userlist) {
+    return res.status(404).json({ message: "User not found." });
+  }
 
   const result = await logs.aggregate([
     {
@@ -281,7 +283,11 @@ exports.getCompletedExercisePercentage = async (req, res) => {
   const ExerciseModel = require("../model/exercise");
 
   try {
-    const { startDate, endDate } = req.query;
+    const { startDate, endDate, userId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({ error: "userId is required" });
+    }
 
     // Parse the provided startDate and endDate from req.params to moment objects
     const startOfWeek = moment(startDate, "YYYY-MM-DD").startOf("day");
@@ -289,6 +295,7 @@ exports.getCompletedExercisePercentage = async (req, res) => {
 
     // Query the exerciseType collection to find exercises within the provided date range
     const exercises = await ExerciseModel.find({
+      userid: userId,
       year: { $gte: startOfWeek.year(), $lte: endOfWeek.year() },
       month: { $gte: startOfWeek.month() + 1, $lte: endOfWeek.month() + 1 },
       date: { $gte: startOfWeek.date(), $lte: endOfWeek.date() },
@@ -340,7 +347,11 @@ exports.getTotalExerciseTime = async (req, res) => {
   const LogExerciseModel = require("../model/logs");
 
   try {
-    const { startDate, endDate } = req.query;
+    const { startDate, endDate, userId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({ error: "userId is required" });
+    }
 
     // Parse the provided startDate and endDate from req.params to moment objects
     const startOfWeek = moment(startDate, "YYYY-MM-DD").startOf("day");
@@ -348,6 +359,7 @@ exports.getTotalExerciseTime = async (req, res) => {
 
     // Query the logexercise collection to find exercises within the provided date range
     const logExercises = await LogExerciseModel.find({
+      userid: userId,
       year: { $gte: startOfWeek.year(), $lte: endOfWeek.year() },
       month: { $gte: startOfWeek.month() + 1, $lte: endOfWeek.month() + 1 },
       date: { $gte: startOfWeek.date(), $lte: endOfWeek.date() },
@@ -388,14 +400,18 @@ exports.getWeeklyExerciseStats = async (req, res) => {
   const LogExerciseModel = require("../model/logs");
 
   try {
-    const { startDate, endDate } = req.query;
+    const { startDate, endDate, userId } = req.query;
 
+    if (!userId) {
+      return res.status(400).json({ error: "userId is required" });
+    }
     // Parse the provided startDate and endDate from req.query to moment objects
     const startOfWeek = moment(startDate, "YYYY-MM-DD").startOf("day");
     const endOfWeek = moment(endDate, "YYYY-MM-DD").endOf("day");
 
     // Retrieve records that match the date range criteria
     const logExercises = await LogExerciseModel.find({
+      userid: userId,
       $or: [
         {
           year: startOfWeek.year(),
@@ -491,15 +507,19 @@ exports.getWeeklyExerciseStats = async (req, res) => {
 exports.getTotals = async (req, res) => {
   const LogExerciseModel = require("../model/logs");
 
-  const { startDate, endDate } = req.query;
+  const { startDate, endDate, userId } = req.query;
 
   try {
+    if (!userId) {
+      return res.status(400).json({ error: "userId is required" });
+    }
     // Parse dates
     const startOfWeek = moment(startDate, "YYYY-MM-DD").startOf("day");
     const endOfWeek = moment(endDate, "YYYY-MM-DD").endOf("day");
 
     // Fetch all exercise logs for the user in the given date range
     const exercises = await LogExerciseModel.find({
+      userid: userId,
       year: {
         $gte: startOfWeek.year(),
         $lte: endOfWeek.year(),

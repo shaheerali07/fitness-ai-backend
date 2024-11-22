@@ -79,8 +79,11 @@ exports.signup = async (req, res) => {
           //   }
           // }
           res.send({
-            message: "success",
+            name: savedUser.username,
+            profilePic: savedUser.profilePicture,
             token,
+            message: "success",
+            id: savedUser._id,
           });
         })
         .catch((err) => {
