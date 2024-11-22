@@ -16,7 +16,6 @@ async function seedDietMenu() {
 
     // Parse the Excel data
     const jsonData = parseExcelData();
-
     const dietMenuData = jsonData
       .map((row) => {
         const foodName = row["__EMPTY_1"] || "";
@@ -24,13 +23,15 @@ async function seedDietMenu() {
         const protein = row["Protein"] || null;
         const water = row["Vand"] || null;
         const mineral = row["Mineral"] || 0;
+        const carbohydrate = row["Tilgængelig kulhydrat"] || 0;
 
         if (
           foodName &&
           kcal !== null &&
           protein !== null &&
           water !== null &&
-          mineral !== null
+          mineral !== null &&
+          carbohydrate !== null
         ) {
           return {
             foodName,
@@ -38,6 +39,7 @@ async function seedDietMenu() {
             protein,
             water,
             mineral,
+            carbohydrate,
           };
         }
       })

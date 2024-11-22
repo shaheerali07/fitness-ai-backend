@@ -53,6 +53,7 @@ exports.setDietPlan = async (req, res) => {
         day: updateData.day,
         meal: updateData.meal,
         amount: updateData.amount,
+        status: updateData.status,
       });
       newDiet.save().then(() => {
         res.send({
@@ -128,6 +129,7 @@ exports.getDietPlan = async (req, res) => {
         protein: { $push: "$protein" },
         water: { $push: "$water" },
         mineral: { $push: "$mineral" },
+        carbohydrate: { $push: "$carbohydrate" },
       },
     },
   ]);
@@ -135,7 +137,7 @@ exports.getDietPlan = async (req, res) => {
   // console.log(resultDietMenu.length)
   if (resultDietMenu.length === 0) {
     res.send({
-      message: "ExercisePlan is not exist",
+      message: "diet plan does not exist",
     });
     return;
   }
@@ -146,6 +148,7 @@ exports.getDietPlan = async (req, res) => {
     protein: resultDietMenu[0].protein,
     water: resultDietMenu[0].water,
     mineral: resultDietMenu[0].mineral,
+    carbohydrate: resultDietMenu[0].carbohydrate,
   };
 
   await user
@@ -329,8 +332,48 @@ exports.getWeeklyTotalData = async (req, res) => {
   });
 };
 
+exports.getWeeklyTotalStats = async (req, res) => {
+  const user = require("../model/users");
+  const diet = require("../model/diet");
+  const moment = require("moment"); // Moment.js is used to handle date manipulation.
+
+  const { startDate, endDate } = req.query;
+  // Parse the provided startDate and endDate from req.query to moment objects
+  const startOfWeek = moment(startDate, "YYYY-MM-DD").startOf("day");
+  const endOfWeek = moment(endDate, "YYYY-MM-DD").endOf("day");
+
+  const dietMenus = await diet.find({
+    $or: [
+      {
+        year: startOfWeek.year(),
+        month: startOfWeek.month() + 1,
+        date: { $gte: startOfWeek.date() },
+      },
+      {
+        year: endOfWeek.year(),
+        month: endOfWeek.month() + 1,
+        date: { $lte: endOfWeek.date() },
+      },
+      {
+        year: startOfWeek.year(),
+        month: { $gt: startOfWeek.month() + 1 },
+      },
+      {
+        year: endOfWeek.year(),
+        month: { $lt: endOfWeek.month() + 1 },
+      },
+      {
+        year: { $gt: startOfWeek.year(), $lt: endOfWeek.year() },
+      },
+    ],
+  });
+  res.send({
+    message: "success",
+    result: dietMenus,
+  });
+};
+
 exports.setTargetKcal = async (req, res) => {
-  console.log("setTargetKcal called");
   const header = req.body.header;
   const updateData = req.body.updateData;
   const userModel = require("../model/users");
@@ -435,4 +478,34 @@ exports.seeddietmenu = async (req, res) => {
     console.error("Error seeding diet menu data:", error);
     res.status(500).send({ message: "Error seeding diet menu data" });
   }
+};
+
+exports.updateDietStatus = async (req, res) => {
+  const user = require("../model/users");
+  const diet = require("../model/diet");
+  const { header, updateData } = req.body;
+  const { email, password } = header;
+  user.findOne({ email: email, password: password }).then(async (result) => {
+    if (result === null) {
+      res.send({
+        message: "User is not registed.",
+      });
+      return;
+    }
+
+    //first find diet by _id
+    const currentDiet = await diet.findById(updateData._id);
+    if (!currentDiet) {
+      res.send({
+        message: "Diet not found",
+      });
+      return;
+    }
+    //update status of found diet
+    currentDiet.status = updateData.status;
+    await currentDiet.save();
+    res.send({
+      message: "Updated",
+    });
+  });
 };

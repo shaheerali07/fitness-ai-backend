@@ -92,7 +92,7 @@ exports.updateExercisePlan = async (req, res) => {
       hour: hours,
       minute: minutes,
       second: seconds,
-      durtime: seconds,
+      durtime: hours,
       accuracy: null,
       counter: counter,
       index: exerciseKind.index,
@@ -374,8 +374,7 @@ exports.getTotalExerciseTime = async (req, res) => {
 
     // Return the total time in hours and minutes
     return res.status(200).json({
-      totalDuration: `${totalDuration} hours`,
-      totalMinutes: totalDuration, // if you need the total in minutes as well
+      totalDuration: totalDuration,
     });
   } catch (error) {
     console.error(error);
@@ -525,7 +524,7 @@ exports.getTotals = async (req, res) => {
     exercises.forEach((exercise) => {
       totalCounter += parseInt(exercise.counter) || 0;
       // Assuming totalDuration is initially in hours
-      totalDuration += (parseInt(exercise.hour) || 0) * 60; // Convert hours to minutes and add to totalDuration
+      totalDuration += parseInt(exercise.hour) || 0; // Convert hours to minutes and add to totalDuration
 
       // Only include accuracy if it exists and is not null
       if (exercise.accuracy !== null) {

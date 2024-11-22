@@ -35,4 +35,12 @@ router.get(
   dietCtrl.getTargetKcal
 );
 
+router.get(
+  "/getWeeklyTotalStats",
+  adminMiddleware.authenticateJWT,
+  dietCtrl.getWeeklyTotalStats
+);
+
+router.post("/updateDietStatus", dietCtrl.updateDietStatus);
+
 module.exports = router;
