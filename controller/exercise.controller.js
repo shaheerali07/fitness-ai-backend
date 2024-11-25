@@ -123,10 +123,11 @@ exports.updateExercisePlan = async (req, res) => {
 exports.setExercisePlan = (req, res) => {
   const user = require("../model/users");
   const exercise = require("../model/exercise");
+  const logs = require("../model/logs");
   const newData = req.body;
 
   const header = newData.header;
-  const { email, password } = header;
+  const { email, password, shouldDelteLogs } = header;
   const updateData = newData.updateData;
 
   if (updateData.year === "") return;
@@ -139,6 +140,10 @@ exports.setExercisePlan = (req, res) => {
           message: "User is not registered.",
         });
         return;
+      }
+
+      if (shouldDelteLogs) {
+        await logs.deleteMany({ userid: result._id });
       }
 
       // Check if an exercise entry already exists for the specified date
