@@ -290,16 +290,43 @@ exports.getCompletedExercisePercentage = async (req, res) => {
     }
 
     // Parse the provided startDate and endDate from req.params to moment objects
-    const startOfWeek = moment(startDate, "YYYY-MM-DD").startOf("day");
-    const endOfWeek = moment(endDate, "YYYY-MM-DD").endOf("day");
-
-    // Query the exerciseType collection to find exercises within the provided date range
-    const exercises = await ExerciseModel.find({
+    // Parse and decompose startDate and endDate
+    const startOfRange = moment(startDate, "YYYY-MM-DD");
+    const endOfRange = moment(endDate, "YYYY-MM-DD");
+    // Construct query for separate year, month, and date fields
+    const query = {
       userid: userId,
-      year: { $gte: startOfWeek.year(), $lte: endOfWeek.year() },
-      month: { $gte: startOfWeek.month() + 1, $lte: endOfWeek.month() + 1 },
-      date: { $gte: startOfWeek.date(), $lte: endOfWeek.date() },
-    });
+      $or: [
+        // Same year and same month
+        {
+          year: startOfRange.year().toString(),
+          month: (startOfRange.month() + 1).toString().padStart(2, "0"),
+          date: {
+            $gte: startOfRange.date().toString(),
+            $lte: endOfRange.date().toString(),
+          },
+        },
+        // Same year, spanning across months
+        {
+          year: startOfRange.year().toString(),
+          month: {
+            $gt: (startOfRange.month() + 1).toString().padStart(2, "0"),
+          },
+        },
+        {
+          year: endOfRange.year().toString(),
+          month: { $lt: (endOfRange.month() + 1).toString().padStart(2, "0") },
+        },
+        // Spanning across years
+        {
+          year: {
+            $gt: startOfRange.year().toString(),
+            $lt: endOfRange.year().toString(),
+          },
+        },
+      ],
+    };
+    const exercises = await ExerciseModel.find(query);
 
     // If no exercises found, return a message
     if (!exercises.length) {
@@ -354,16 +381,44 @@ exports.getTotalExerciseTime = async (req, res) => {
     }
 
     // Parse the provided startDate and endDate from req.params to moment objects
-    const startOfWeek = moment(startDate, "YYYY-MM-DD").startOf("day");
-    const endOfWeek = moment(endDate, "YYYY-MM-DD").endOf("day");
-
-    // Query the logexercise collection to find exercises within the provided date range
-    const logExercises = await LogExerciseModel.find({
+    // Parse and decompose startDate and endDate
+    const startOfRange = moment(startDate, "YYYY-MM-DD");
+    const endOfRange = moment(endDate, "YYYY-MM-DD");
+    // Construct query for separate year, month, and date fields
+    const query = {
       userid: userId,
-      year: { $gte: startOfWeek.year(), $lte: endOfWeek.year() },
-      month: { $gte: startOfWeek.month() + 1, $lte: endOfWeek.month() + 1 },
-      date: { $gte: startOfWeek.date(), $lte: endOfWeek.date() },
-    });
+      $or: [
+        // Same year and same month
+        {
+          year: startOfRange.year().toString(),
+          month: (startOfRange.month() + 1).toString().padStart(2, "0"),
+          date: {
+            $gte: startOfRange.date().toString(),
+            $lte: endOfRange.date().toString(),
+          },
+        },
+        // Same year, spanning across months
+        {
+          year: startOfRange.year().toString(),
+          month: {
+            $gt: (startOfRange.month() + 1).toString().padStart(2, "0"),
+          },
+        },
+        {
+          year: endOfRange.year().toString(),
+          month: { $lt: (endOfRange.month() + 1).toString().padStart(2, "0") },
+        },
+        // Spanning across years
+        {
+          year: {
+            $gt: startOfRange.year().toString(),
+            $lt: endOfRange.year().toString(),
+          },
+        },
+      ],
+    };
+    // Query the logexercise collection to find exercises within the provided date range
+    const logExercises = await LogExerciseModel.find(query);
 
     // If no log exercises found, return a message
     if (!logExercises.length) {
@@ -513,26 +568,44 @@ exports.getTotals = async (req, res) => {
     if (!userId) {
       return res.status(400).json({ error: "userId is required" });
     }
-    // Parse dates
-    const startOfWeek = moment(startDate, "YYYY-MM-DD").startOf("day");
-    const endOfWeek = moment(endDate, "YYYY-MM-DD").endOf("day");
-
-    // Fetch all exercise logs for the user in the given date range
-    const exercises = await LogExerciseModel.find({
+    // Parse the provided startDate and endDate from req.params to moment objects
+    // Parse and decompose startDate and endDate
+    const startOfRange = moment(startDate, "YYYY-MM-DD");
+    const endOfRange = moment(endDate, "YYYY-MM-DD");
+    // Construct query for separate year, month, and date fields
+    const query = {
       userid: userId,
-      year: {
-        $gte: startOfWeek.year(),
-        $lte: endOfWeek.year(),
-      },
-      month: {
-        $gte: startOfWeek.month() + 1,
-        $lte: endOfWeek.month() + 1,
-      },
-      date: {
-        $gte: startOfWeek.date(),
-        $lte: endOfWeek.date(),
-      },
-    });
+      $or: [
+        // Same year and same month
+        {
+          year: startOfRange.year().toString(),
+          month: (startOfRange.month() + 1).toString().padStart(2, "0"),
+          date: {
+            $gte: startOfRange.date().toString(),
+            $lte: endOfRange.date().toString(),
+          },
+        },
+        // Same year, spanning across months
+        {
+          year: startOfRange.year().toString(),
+          month: {
+            $gt: (startOfRange.month() + 1).toString().padStart(2, "0"),
+          },
+        },
+        {
+          year: endOfRange.year().toString(),
+          month: { $lt: (endOfRange.month() + 1).toString().padStart(2, "0") },
+        },
+        // Spanning across years
+        {
+          year: {
+            $gt: startOfRange.year().toString(),
+            $lt: endOfRange.year().toString(),
+          },
+        },
+      ],
+    };
+    const exercises = await LogExerciseModel.find(query);
 
     // Initialize totals
     let totalCounter = 0;
