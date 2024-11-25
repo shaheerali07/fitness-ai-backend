@@ -332,49 +332,139 @@ exports.getWeeklyTotalData = async (req, res) => {
   });
 };
 
+// exports.getWeeklyTotalStats = async (req, res) => {
+//   const diet = require("../model/diet");
+//   const moment = require("moment"); // Moment.js is used to handle date manipulation.
+
+//   const { startDate, endDate, userId } = req.query;
+//   if (!userId) {
+//     res.status(400).send({ message: "userId is required" });
+//     return;
+//   }
+//   // Parse the provided startDate and endDate from req.query to moment objects
+//   const startOfWeek = moment(startDate, "YYYY-MM-DD").startOf("day");
+//   const endOfWeek = moment(endDate, "YYYY-MM-DD").endOf("day");
+
+//   // Find all diet menus for the given user within the provided date range
+//   const dietMenus = await diet.find({
+//     userid: userId,
+//     $or: [
+//       {
+//         year: startOfWeek.year(),
+//         month: startOfWeek.month() + 1,
+//         date: { $gte: startOfWeek.date() },
+//       },
+//       {
+//         year: endOfWeek.year(),
+//         month: endOfWeek.month() + 1,
+//         date: { $lte: endOfWeek.date() },
+//       },
+//       {
+//         year: startOfWeek.year(),
+//         month: { $gt: startOfWeek.month() + 1 },
+//       },
+//       {
+//         year: endOfWeek.year(),
+//         month: { $lt: endOfWeek.month() + 1 },
+//       },
+//       {
+//         year: { $gt: startOfWeek.year(), $lt: endOfWeek.year() },
+//       },
+//     ],
+//   });
+
+//   // const dietMenus = await diet.find({
+//   //   userid: userId,
+//   //   $or: [
+//   //     {
+//   //       year: startOfWeek.year(),
+//   //       month: startOfWeek.month() + 1,
+//   //       date: { $gte: startOfWeek.date() },
+//   //     },
+//   //     {
+//   //       year: endOfWeek.year(),
+//   //       month: endOfWeek.month() + 1,
+//   //       date: { $lte: endOfWeek.date() },
+//   //     },
+//   //     {
+//   //       year: startOfWeek.year(),
+//   //       month: { $gt: startOfWeek.month() + 1 },
+//   //     },
+//   //     {
+//   //       year: endOfWeek.year(),
+//   //       month: { $lt: endOfWeek.month() + 1 },
+//   //     },
+//   //     {
+//   //       year: { $gt: startOfWeek.year(), $lt: endOfWeek.year() },
+//   //     },
+//   //   ],
+//   // });
+//   console.log(dietMenus);
+
+//   res.send({
+//     message: "success",
+//     result: dietMenus,
+//   });
+// };
 exports.getWeeklyTotalStats = async (req, res) => {
   const diet = require("../model/diet");
-  const moment = require("moment"); // Moment.js is used to handle date manipulation.
+  const moment = require("moment");
 
   const { startDate, endDate, userId } = req.query;
-  if (!userId) {
-    res.status(400).send({ message: "userId is required" });
-    return;
-  }
-  // Parse the provided startDate and endDate from req.query to moment objects
-  const startOfWeek = moment(startDate, "YYYY-MM-DD").startOf("day");
-  const endOfWeek = moment(endDate, "YYYY-MM-DD").endOf("day");
 
-  const dietMenus = await diet.find({
-    userid: userId,
-    $or: [
-      {
-        year: startOfWeek.year(),
-        month: startOfWeek.month() + 1,
-        date: { $gte: startOfWeek.date() },
-      },
-      {
-        year: endOfWeek.year(),
-        month: endOfWeek.month() + 1,
-        date: { $lte: endOfWeek.date() },
-      },
-      {
-        year: startOfWeek.year(),
-        month: { $gt: startOfWeek.month() + 1 },
-      },
-      {
-        year: endOfWeek.year(),
-        month: { $lt: endOfWeek.month() + 1 },
-      },
-      {
-        year: { $gt: startOfWeek.year(), $lt: endOfWeek.year() },
-      },
-    ],
-  });
-  res.send({
-    message: "success",
-    result: dietMenus,
-  });
+  if (!userId) {
+    return res.status(400).send({ message: "userId is required" });
+  }
+
+  try {
+    // Parse and decompose startDate and endDate
+    const startOfRange = moment(startDate, "YYYY-MM-DD");
+    const endOfRange = moment(endDate, "YYYY-MM-DD");
+
+    // Construct query for separate year, month, and date fields
+    const query = {
+      userid: userId,
+      $or: [
+        // Same year and same month
+        {
+          year: startOfRange.year().toString(),
+          month: (startOfRange.month() + 1).toString().padStart(2, "0"),
+          date: {
+            $gte: startOfRange.date().toString(),
+            $lte: endOfRange.date().toString(),
+          },
+        },
+        // Same year, spanning across months
+        {
+          year: startOfRange.year().toString(),
+          month: {
+            $gt: (startOfRange.month() + 1).toString().padStart(2, "0"),
+          },
+        },
+        {
+          year: endOfRange.year().toString(),
+          month: { $lt: (endOfRange.month() + 1).toString().padStart(2, "0") },
+        },
+        // Spanning across years
+        {
+          year: {
+            $gt: startOfRange.year().toString(),
+            $lt: endOfRange.year().toString(),
+          },
+        },
+      ],
+    };
+
+    // Query the database
+    const dietMenus = await diet.find(query);
+    return res.send({
+      message: "success",
+      result: dietMenus,
+    });
+  } catch (error) {
+    console.error("Error retrieving diet data:", error);
+    return res.status(500).send({ message: "Internal server error" });
+  }
 };
 
 exports.setTargetKcal = async (req, res) => {
