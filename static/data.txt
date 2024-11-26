@@ -1,214 +1,4 @@
-exports.INJURY_COMPATIBLE_EXERCISES = [
-  {
-    injury: "Shoulder Impingement",
-    compatibleExercises: [
-      "across-chest-shoulder-stretch",
-      "reverse-shoulder-stretch",
-      "arm-circles",
-      "dynamic-arm-swing-back-stretch",
-      "biceps-stretch-behind-the-back",
-      "back-and-shoulder-stretch",
-    ],
-  },
-  {
-    injury: "Rotator Cuff Tear",
-    compatibleExercises: [
-      "across-chest-shoulder-stretch",
-      "biceps-stretch-behind-the-back",
-      "dynamic-arm-swing-back-stretch",
-      "arm-circles",
-      "reverse-shoulder-stretch",
-    ],
-  },
-  {
-    injury: "Labral Tear (Shoulder)",
-    compatibleExercises: [
-      "reverse-shoulder-stretch",
-      "dynamic-arm-swing-back-stretch",
-      "across-chest-shoulder-stretch",
-      "arm-circles",
-    ],
-  },
-  {
-    injury: "Knee Pain (General)",
-    compatibleExercises: [
-      "calf-stretch-with-rope",
-      "adductor-stretch-side-standing",
-      "seated-single-leg-hamstring-stretch",
-      "standing-hamstring-calf-stretch",
-      "seated-straight-leg-calf-stretch",
-      "standing-quadriceps-stretch",
-    ],
-  },
-  {
-    injury: "Patellar Tendinitis",
-    compatibleExercises: [
-      "calf-stretch-with-rope",
-      "kneeling-hip-flexor-stretch",
-      "adductor-stretch-side-standing",
-      "standing-quadriceps-stretch",
-      "seated-single-leg-hamstring-stretch",
-    ],
-  },
-  {
-    injury: "ACL Tear (Post-Surgery)",
-    compatibleExercises: [
-      "seated-single-leg-hamstring-stretch",
-      "seated-straight-leg-calf-stretch",
-      "calf-stretch-with-hands-against-wall",
-      "standing-quadriceps-stretch",
-      "kneeling-hip-flexor-stretch",
-    ],
-  },
-  {
-    injury: "Meniscus Tear",
-    compatibleExercises: [
-      "seated-single-leg-hamstring-stretch",
-      "standing-hamstring-calf-stretch",
-      "kneeling-hip-flexor-stretch",
-      "calf-stretch-with-hands-against-wall",
-    ],
-  },
-  {
-    injury: "Ankle Sprain",
-    compatibleExercises: [
-      "calf-stretch-with-rope",
-      "seated-calf-stretch",
-      "standing-gastrocnemius-stretch",
-      "crouching-heel-back-calf-stretch",
-      "lunging-straight-leg-calf-stretch",
-    ],
-  },
-  {
-    injury: "Plantar Fasciitis",
-    compatibleExercises: [
-      "calf-stretch-with-rope",
-      "seated-calf-stretch",
-      "standing-gastrocnemius-stretch",
-      "lunging-straight-leg-calf-stretch",
-    ],
-  },
-  {
-    injury: "Achilles Tendinitis",
-    compatibleExercises: [
-      "calf-stretch-with-hands-against-wall",
-      "seated-calf-stretch",
-      "standing-gastrocnemius-stretch",
-      "lunging-straight-leg-calf-stretch",
-    ],
-  },
-  {
-    injury: "Lower Back Pain (General)",
-    compatibleExercises: [
-      "cat-stretch",
-      "cobra-yoga-pose-hold",
-      "kneeling-lat-floor-stretch",
-      "lying-prone-abdominal-stretch",
-      "back-stretch-standing-with-bench",
-    ],
-  },
-  {
-    injury: "Herniated Disc",
-    compatibleExercises: [
-      "cat-stretch",
-      "cobra-yoga-pose-hold",
-      "lying-prone-abdominal-stretch",
-      "kneeling-lat-floor-stretch",
-    ],
-  },
-  {
-    injury: "Sciatica",
-    compatibleExercises: [
-      "cat-stretch",
-      "cobra-yoga-pose-hold",
-      "kneeling-lat-floor-stretch",
-      "lying-prone-abdominal-stretch",
-    ],
-  },
-  {
-    injury: "Tennis Elbow",
-    compatibleExercises: [
-      "elbow-back-stretch",
-      "elbow-extension-and-supination-pronation-forearm-stretch",
-      "reverse-shoulder-stretch",
-      "wrist-flexor-stretch",
-    ],
-  },
-  {
-    injury: "Golf Elbow",
-    compatibleExercises: [
-      "elbow-extension-and-supination-pronation-forearm-stretch",
-      "wrist-flexor-stretch",
-      "reverse-shoulder-stretch",
-    ],
-  },
-  {
-    injury: "Hip Bursitis",
-    compatibleExercises: [
-      "kneeling-hip-flexor-stretch",
-      "crossover-kneeling-hip-flexor-stretch",
-      "adductor-stretch-side-standing",
-      "seated-cross-leg-glute-stretch",
-    ],
-  },
-  {
-    injury: "Frozen Shoulder",
-    compatibleExercises: [
-      "across-chest-shoulder-stretch",
-      "dynamic-arm-swing-back-stretch",
-      "arm-circles",
-      "reverse-shoulder-stretch",
-    ],
-  },
-  {
-    injury: "IT Band Syndrome",
-    compatibleExercises: [
-      "crossover-kneeling-hip-flexor-stretch",
-      "standing-side-slope-stretch",
-      "kneeling-hip-flexor-stretch",
-      "side-lying-floor-stretch",
-    ],
-  },
-  {
-    injury: "Carpal Tunnel Syndrome",
-    compatibleExercises: [
-      "kneeling-wrist-flexor-stretch",
-      "elbow-extension-and-supination-pronation-forearm-stretch",
-      "wrist-flexor-stretch",
-    ],
-  },
-  {
-    injury: "Hamstring Strain",
-    compatibleExercises: [
-      "seated-single-leg-hamstring-stretch",
-      "lying-hamstring-stretch",
-      "standing-hamstring-calf-stretch",
-      "seated-straight-leg-calf-stretch",
-    ],
-  },
-  {
-    injury: "Quadriceps Strain",
-    compatibleExercises: [
-      "standing-quadriceps-stretch",
-      "lying-side-quadriceps-stretch",
-      "all-fours-quad-stretch",
-      "kneeling-hip-flexor-stretch",
-    ],
-  },
-];
-
-exports.EXERCISES = {
-  kinds: [
-    {
-      index: "Exercise_2",
-      category: "Stretches",
-      injuryCompatible: [
-        "Shoulder Impingement",
-        "Knee Pain (General)",
-        "Hamstring Strain",
-      ],
-      exercises: [
-        "abdominal-stretch",
+       [ "abdominal-stretch",
         "above-head-chest-stretch",
         "across-chest-shoulder-stretch (2)",
         "across-chest-shoulder-stretch",
@@ -296,20 +86,6 @@ exports.EXERCISES = {
         "standing-side-slope-stretch",
         "triceps-light-stretch",
         "upper-back-stretch",
-      ],
-    },
-    {
-      index: "Exercise_2",
-      category: "GYM EXERCISES",
-      injuryCompatible: [
-        "Lower Back Pain (General)",
-        "Knee Pain (General)",
-        "Shoulder Impingement",
-        "Rotator Cuff Tear",
-        "Sciatica",
-      ],
-      exercises: {
-        ABS: [
           "45 Degree Bycicle Twisting Crunch",
           "45 Degree Side Bend",
           "Band Twist",
@@ -332,8 +108,6 @@ exports.EXERCISES = {
           "Stretching - Spinal Stretch On Exercise Ball",
           "Vertical Leg Raise (on parallel bars)",
           "Weighted Leg Extension Crunch",
-        ],
-        BACK: [
           "45 Degree Hyperextension",
           "Barbell Bent-over Row (over-grip)",
           "Barbell Straight Leg Deadlift",
@@ -371,8 +145,6 @@ exports.EXERCISES = {
           "Stretching - Dynamic Back Stretch",
           "Stretching - Seated Lower Back Stretch",
           "Stretching - Standing Back Rotation Stretch",
-        ],
-        BICEPS: [
           "Barbell Curl",
           "Barbell Drag Curl",
           "Barbell Prone Incline Curl",
@@ -387,8 +159,6 @@ exports.EXERCISES = {
           "EZ Barbell Biceps Curl",
           "Lever Preacher Curl",
           "Lying Supine Dumbbell Curl",
-        ],
-        CHEST: [
           "Barbell Bench Press",
           "Barbell Decline Bench Press",
           "Barbell Incline Bench Press",
@@ -402,8 +172,6 @@ exports.EXERCISES = {
           "Lever Pec Deck Fly",
           "Stretching - Standing Wheel Rollout",
           "Wide Grip Push-ups",
-        ],
-        "LEGS and OTHERS": [
           "barbell-back-wide-shrug",
           "barbell-behind-neck-press-military-press",
           "barbell-behind-neck-push-press",
@@ -505,8 +273,6 @@ exports.EXERCISES = {
           "triceps-rope-extension-on-crossover-machine",
           "upright-row-barbell",
           "upright-row-ez-bar",
-        ],
-        SHOULDERS: [
           "Barbell Front Raise",
           "Barbell Seated Behind Head Military Press",
           "Barbell Upright Row (wide-grip)",
@@ -531,9 +297,7 @@ exports.EXERCISES = {
           "Lever Seated Reverse Fly",
           "Military Press",
           "Smith Seated Shoulder Press",
-        ],
-        TRAPEZIUS: ["Stretching - Neck Side Stretch"],
-        TRICEPS: [
+          "Stretching - Neck Side Stretch"
           "Barbell Close Grip Bench Press",
           "Cable Lying Triceps Extension",
           "Cable Overhead Triceps Extension (rope attachment)",
@@ -561,20 +325,11 @@ exports.EXERCISES = {
           "Lever Seated Dips",
           "Lever Triceps Extension (neutral grip)",
           "Lever Triceps Extension",
-        ],
-      },
-    },
-    {
-      index: "Exercise_2",
-      category: "Resistance Band",
-      injuryCompatible: [
-        "Shoulder Impingement",
+           "Shoulder Impingement",
         "Rotator Cuff Tear",
         "Knee Pain (General)",
         "Lower Back Pain (General)",
         "Sciatica",
-      ],
-      exercises: [
         "arnold-press-cable-resistance-band-standing",
         "behind-neck-press-resistance-band-cable",
         "bent-over-rear-deltoid-fly-resistance-band",
@@ -592,21 +347,13 @@ exports.EXERCISES = {
         "single-leg-romanian-deadlift-cable-resistance-band",
         "standing-calf-raise-resistance-band",
         "upright-row-cable-resistance-band",
-      ],
-    },
-    {
-      index: "Exercise_2",
-      category: "Exercise Ball",
-      injuryCompatible: [
-        "Shoulder Impingement",
+         "Shoulder Impingement",
         "Rotator Cuff Tear",
         "Knee Pain (General)",
         "Lower Back Pain (General)",
         "Sciatica",
         "Hip Bursitis",
-      ],
-      exercises: [
-        "chest-stretch-with-exercise-ball",
+         "chest-stretch-with-exercise-ball",
         "exercise-ball-back-stretch",
         "exercise-ball-hip-flexor-stretch",
         "exercise-ball-lat-stretch",
@@ -615,13 +362,7 @@ exports.EXERCISES = {
         "exercise-ball-lying-side-lat-stretch",
         "exercise-ball-seated-hamstring-stretch",
         "exercise-ball-seated-quad-stretch",
-      ],
-    },
-    {
-      index: "Exercise_2",
-      category: "Dumbbells",
-      injuryCompatible: [
-        "Shoulder Impingement",
+         "Shoulder Impingement",
         "Rotator Cuff Tear",
         "Knee Pain (General)",
         "Patellar Tendinitis",
@@ -632,8 +373,6 @@ exports.EXERCISES = {
         "Hamstring Strain",
         "Quadriceps Strain",
         "Ankle Sprain",
-      ],
-      exercises: [
         "arnold-press-dumbbell",
         "arnold-press-seated",
         "bent-over-rear-delt-fly-dumbbell",
@@ -730,20 +469,12 @@ exports.EXERCISES = {
         "standing-front-raise-dumbbells",
         "standing-shoulder-press-dumbbell",
         "upright-row-dumbbell",
-      ],
-    },
-    {
-      index: "Exercise_2",
-      category: "Bodyweight",
-      injuryCompatible: [
-        "Shoulder Impingement",
+   "Shoulder Impingement",
         "Knee Pain (General)",
         "Lower Back Pain (General)",
         "Sciatica",
         "Hamstring Strain",
         "Quadriceps Strain",
-      ],
-      exercises: [
         "bent-knee-back-to-side-kick",
         "bird-dog",
         "bodyweight-bent-over-rear-delt-fly",
@@ -798,122 +529,4 @@ exports.EXERCISES = {
         "standing-y-raise",
         "step-up-on-chair-bodyweight",
         "upward-rotation-extend-arm",
-      ],
-    },
-  ],
-};
-exports.INJURY_NOTES = [
-  {
-    injury: "Shoulder Impingement",
-    notes: ["Avoid heavy overhead lifts and internal rotation under load."],
-  },
-  {
-    injury: "Rotator Cuff Tear",
-    notes: ["Start with passive movement before active strengthening."],
-  },
-  {
-    injury: "Labral Tear (Shoulder)",
-    notes: ["Avoid shoulder dislocation positions or overhead presses."],
-  },
-  {
-    injury: "Knee Pain (General)",
-    notes: ["Avoid deep knee bends or excessive pressure on the kneecap."],
-  },
-  {
-    injury: "Patellar Tendinitis",
-    notes: ["Avoid jumping and running until inflammation subsides."],
-  },
-  {
-    injury: "ACL Tear (Post-Surgery)",
-    notes: ["Follow post-op protocols and consult a physiotherapist."],
-  },
-  {
-    injury: "Meniscus Tear",
-    notes: ["Avoid twisting motions or deep squats."],
-  },
-  {
-    injury: "Ankle Sprain",
-    notes: ["Gradually introduce weight-bearing exercises."],
-  },
-  {
-    injury: "Plantar Fasciitis",
-    notes: ["Avoid high-impact activities like running during acute pain."],
-  },
-  {
-    injury: "Achilles Tendinitis",
-    notes: [
-      "Avoid sprinting, jumping, or incline activities during the acute phase.",
-    ],
-  },
-  {
-    injury: "Lower Back Pain (General)",
-    notes: [
-      "Avoid exercises with forward flexion or heavy lifting. Focus on core stabilization.",
-    ],
-  },
-  {
-    injury: "Herniated Disc",
-    notes: ["Avoid sit-ups, twisting motions, and forward bending."],
-  },
-  {
-    injury: "Sciatica",
-    notes: ["Avoid high-impact activities or prolonged sitting."],
-  },
-  {
-    injury: "Tennis Elbow",
-    notes: ["Avoid repetitive gripping motions."],
-  },
-  {
-    injury: "Golf Elbow",
-    notes: ["Use light weights and slow, controlled movements."],
-  },
-  {
-    injury: "Hip Bursitis",
-    notes: ["Avoid activities that involve repetitive hip flexion."],
-  },
-  {
-    injury: "Frozen Shoulder",
-    notes: ["Avoid aggressive stretching; progress slowly."],
-  },
-  {
-    injury: "IT Band Syndrome",
-    notes: ["Strengthen hip abductors and avoid downhill running."],
-  },
-  {
-    injury: "Carpal Tunnel Syndrome",
-    notes: [
-      "Avoid prolonged wrist flexion or repetitive keyboard use without breaks.",
-    ],
-  },
-  {
-    injury: "Hamstring Strain",
-    notes: ["Avoid ballistic stretches or heavy resistance initially."],
-  },
-  {
-    injury: "Quadriceps Strain",
-    notes: ["Gradually progress to dynamic movements as pain allows."],
-  },
-];
-exports.dietKeywords = ["diet", "diet plan", "meal", "nutrition", "dietary"];
-
-// Keywords to determine if the question is related to fitness
-exports.fitnessKeywords = [
-  "fitness",
-  "exercise",
-  "workout",
-  "diet",
-  "muscle",
-  "weight loss",
-  "gain weight",
-  "nutrition",
-  "training",
-  "strength",
-];
-// Keywords to identify diet-related questions
-exports.exerciseKeywords = [
-  "exercise",
-  "workout plan",
-  "gym",
-  "training",
-  "routine",
-];
+     ]

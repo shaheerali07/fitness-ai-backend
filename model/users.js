@@ -117,6 +117,17 @@ const Userdb = new mongoose.Schema({
       return this.exerciseLimitations === "yes"; // Required if exerciseLimitations is yes
     },
   },
+  injury: {
+    type: String,
+    required: false,
+    enum: ["yes", "no"], // Limit to yes/no
+  },
+  injuryDetail: {
+    type: String,
+    required: function () {
+      return this.injury === "yes"; // Required if injury is yes
+    },
+  },
   agreeTerms: {
     type: Boolean,
     required: false,

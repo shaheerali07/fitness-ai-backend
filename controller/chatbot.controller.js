@@ -6,6 +6,8 @@ const {
   dietKeywords,
   fitnessKeywords,
   exerciseKeywords,
+  INJURY_COMPATIBLE_EXERCISES,
+  INJURY_NOTES,
 } = require("../static/data");
 require("dotenv").config();
 
@@ -48,6 +50,8 @@ exports.askMe = async (req, res) => {
         "Dumbbells",
         "Bodyweight",
       ], // E.g.,
+      injury: userData.injury || "not provided",
+      injuryDetail: userData.injuryDetail || "not provided",
     };
     const userQuestion = req.query.question.toLowerCase();
     const dietMenu = require("../model/dietmenu");
@@ -144,16 +148,59 @@ exports.askMe = async (req, res) => {
       return exercisePlan;
     }
     function selectExerciseForSession(exerciseData, userContext) {
-      // Filter categories based on user preferences
-      const suitableCategories = exerciseData.kinds.filter((category) =>
-        userContext.exercisePreferences.includes(category.category)
-      );
+      // Check if the user has injuries
+      const hasInjury = userContext.injury === "yes";
+      const injuryDetails = userContext.injuryDetail || []; // List of injuries
+      // // Filter categories based on injury type if applicable
+      // let suitableCategories;
+      // // If the user has injuries, filter exercises based on compatibility
+      // if (hasInjury) {
+      //   // Collect all compatible exercises for the user's injuries
+      //   const compatibleExercises = injuryDetails.flatMap((injury) => {
+      //     const injuryData = INJURY_COMPATIBLE_EXERCISES.find(
+      //       (entry) => entry.injury === injury
+      //     );
+      //     return injuryData ? injuryData.compatibleExercises : [];
+      //   });
+
+      //   // Filter categories that have at least one compatible exercise
+      //   suitableCategories = exerciseData.kinds.filter((category) => {
+      //     // Flatten exercises if it's an object
+      //     const exercises = Array.isArray(category.exercises)
+      //       ? category.exercises // Already an array
+      //       : Object.values(category.exercises).flat(); // Flatten nested objects
+
+      //     // Check if any exercise is compatible
+      //     return exercises.some((exercise) =>
+      //       compatibleExercises.includes(exercise)
+      //     );
+      //   });
+      // } else {
+      //   // Filter categories based on user preferences if no injuries
+      //   suitableCategories = exerciseData.kinds.filter((category) =>
+      //     userContext.exercisePreferences.includes(category.category)
+      //   );
+      // }
+      let suitableCategories = exerciseData.kinds.filter((category) => {
+        // If user has injuries, filter categories based on compatibility
+        if (hasInjury) {
+          return (
+            category.injuryCompatible &&
+            category.injuryCompatible.some((injury) =>
+              injuryDetails.includes(injury)
+            )
+          );
+        }
+
+        // Otherwise, filter based on user preferences
+        return userContext.exercisePreferences.includes(category.category);
+      });
 
       if (suitableCategories.length === 0) {
-        return "No exercises available"; // Edge case if preferences don't match
+        return "No exercises available"; // Edge case if no categories match
       }
 
-      // Randomly select a category that matches preferences
+      // Randomly select a category from the filtered list
       const randomCategory =
         suitableCategories[
           Math.floor(Math.random() * suitableCategories.length)
@@ -161,14 +208,40 @@ exports.askMe = async (req, res) => {
 
       // Randomly select an exercise from the chosen category
       const exercises = Array.isArray(randomCategory.exercises)
-        ? randomCategory.exercises // Flat list of exercises (e.g., Stretches)
-        : Object.values(randomCategory.exercises).flat(); // Nested exercises by muscle groups (e.g., Gym Exercises)
+        ? randomCategory.exercises // Flat list of exercises
+        : Object.values(randomCategory.exercises).flat(); // Nested exercises
 
       const randomExercise =
         exercises[Math.floor(Math.random() * exercises.length)];
 
       return randomExercise;
     }
+    // function selectExerciseForSession(exerciseData, userContext) {
+    //   // Filter categories based on user preferences
+    //   const suitableCategories = exerciseData.kinds.filter((category) =>
+    //     userContext.exercisePreferences.includes(category.category)
+    //   );
+
+    //   if (suitableCategories.length === 0) {
+    //     return "No exercises available"; // Edge case if preferences don't match
+    //   }
+
+    //   // Randomly select a category that matches preferences
+    //   const randomCategory =
+    //     suitableCategories[
+    //       Math.floor(Math.random() * suitableCategories.length)
+    //     ];
+
+    //   // Randomly select an exercise from the chosen category
+    //   const exercises = Array.isArray(randomCategory.exercises)
+    //     ? randomCategory.exercises // Flat list of exercises (e.g., Stretches)
+    //     : Object.values(randomCategory.exercises).flat(); // Nested exercises by muscle groups (e.g., Gym Exercises)
+
+    //   const randomExercise =
+    //     exercises[Math.floor(Math.random() * exercises.length)];
+
+    //   return randomExercise;
+    // }
 
     // Check if the question is fitness-related
     const isFitnessRelated = fitnessKeywords.some((keyword) =>
@@ -236,6 +309,15 @@ exports.askMe = async (req, res) => {
     The user requested an exercise plan. Generate the following structured exercise plan using only the exercises from the provided list:
     ${exercisePlanHtml}
     `;
+      if (userContext.injury === "yes") {
+        const injuryNote = INJURY_NOTES.find((entry) =>
+          userContext.injuryDetail.includes(entry.injury)
+        );
+        prompt += `
+      Also after generating the exercise plan, please ask the user to consult a fitness trainer before starting any new exercise routine. 
+      The user has an injury and has provided the following details: ${userContext.injuryDetail}. Add the following note: ${injuryNote.note}
+      `;
+      }
     } else if (isFitnessRelated) {
       prompt += `
       The user has a fitness goal to ${userContext.fitnessGoal} and increase weight from ${userContext.weight} kg to ${userContext.goalWeight} kg. 
