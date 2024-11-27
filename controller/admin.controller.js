@@ -11,6 +11,7 @@ exports.test = (req, res) => {
 };
 
 exports.signup = async (req, res) => {
+  const user = require("../model/users");
   try {
     // Validate request payload
     const { error, value } = signupSchema.validate(req.body);
