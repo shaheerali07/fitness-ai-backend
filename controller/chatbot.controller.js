@@ -17,6 +17,7 @@ exports.askMe = async (req, res) => {
       apiKey: process.env.OPENAI_API_KEY_DEFAULT,
     });
     const userEmail = req.query.email;
+    const shouldSave = req.query.shouldSave;
 
     // Fetch the user's fitness data from the database
     const userData = await User.findOne({ email: userEmail });
@@ -341,16 +342,16 @@ exports.askMe = async (req, res) => {
 
     if (!chatHistory) {
       // Initialize shouldSave and saveType
-      let shouldSave = false;
+      // let shouldSave = false;
       let saveType = "";
 
       // Check if any dietKeywords are present in the userQuestion
       if (dietKeywords.some((keyword) => userQuestion.includes(keyword))) {
-        shouldSave = true;
+        // shouldSave = true;
         saveType = "diet";
       }
       if (isExerciseRelated) {
-        shouldSave = true;
+        // shouldSave = true;
         saveType = "exercise";
       }
       // If chat history doesn't exist, create a new one
@@ -370,16 +371,16 @@ exports.askMe = async (req, res) => {
       });
     } else {
       // Initialize shouldSave and saveType
-      let shouldSave = false;
+      // let shouldSave = false;
       let saveType = "";
 
       // Check if any dietKeywords are present in the userQuestion
       if (dietKeywords.some((keyword) => userQuestion.includes(keyword))) {
-        shouldSave = true;
+        // shouldSave = true;
         saveType = "diet";
       }
       if (isExerciseRelated) {
-        shouldSave = true;
+        // shouldSave = true;
         saveType = "exercise";
       }
       // If chat history exists, push the new messages into the existing array
@@ -398,16 +399,16 @@ exports.askMe = async (req, res) => {
     await chatHistory.save();
     // Send the AI's response back to the client
     // Initialize shouldSave and saveType
-    let shouldSave = false;
+    // let shouldSave = false;
     let saveType = "";
 
     // Check if any dietKeywords are present in the userQuestion
     if (dietKeywords.some((keyword) => userQuestion.includes(keyword))) {
-      shouldSave = true;
+      // shouldSave = true;
       saveType = "diet";
     }
     if (isExerciseRelated) {
-      shouldSave = true;
+      // shouldSave = true;
       saveType = "exercise";
     }
     const response = {
