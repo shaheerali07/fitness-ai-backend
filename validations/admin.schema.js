@@ -17,3 +17,9 @@ exports.resetPasswordSchema = Joi.object({
 exports.forgotPasswordSchema = Joi.object({
   email: Joi.string().email().required(), // Valid email format required
 });
+
+exports.changePasswordSchema = Joi.object({
+  email: Joi.string().email().required(), // Valid email format required
+  currentPassword: Joi.string().min(8).required(), // Password must be at least 8 characters
+  newPassword: Joi.string().min(8).required(), // Password must be at least 8 characters
+});

@@ -1,6 +1,21 @@
 const { EXERCISES } = require("../static/data");
 const moment = require("moment"); // Moment.js is used to handle date manipulation.
-
+function findExerciseKind(exerciseName) {
+  for (const kind of EXERCISES.kinds) {
+    if (Array.isArray(kind.exercises)) {
+      if (kind.exercises.includes(exerciseName)) {
+        return { index: kind.index, category: kind.category };
+      }
+    } else {
+      for (const category in kind.exercises) {
+        if (kind.exercises[category].includes(exerciseName)) {
+          return { index: kind.index, category: kind.category };
+        }
+      }
+    }
+  }
+  return null; // Exercise not found
+}
 exports.setExerciseLogs = async (req, res) => {
   console.log("exercise is up to day");
 
@@ -27,22 +42,7 @@ exports.setExerciseLogs = async (req, res) => {
     });
   });
 };
-function findExerciseKind(exerciseName) {
-  for (const kind of EXERCISES.kinds) {
-    if (Array.isArray(kind.exercises)) {
-      if (kind.exercises.includes(exerciseName)) {
-        return { index: kind.index, category: kind.category };
-      }
-    } else {
-      for (const category in kind.exercises) {
-        if (kind.exercises[category].includes(exerciseName)) {
-          return { index: kind.index, category: kind.category };
-        }
-      }
-    }
-  }
-  return null; // Exercise not found
-}
+
 exports.updateExercisePlan = async (req, res) => {
   const exerciseModel = require("../model/exercise");
   const logsModel = require("../model/logs");

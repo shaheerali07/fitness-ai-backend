@@ -5,6 +5,7 @@ const {
   signupSchema,
   resetPasswordSchema,
   forgotPasswordSchema,
+  changePasswordSchema,
 } = require("../validations/admin.schema");
 exports.test = (req, res) => {
   res.send("Welcome to fitness 1.3");
@@ -237,7 +238,13 @@ exports.getUserByEmail = async (req, res) => {
 
 exports.changePassword = async (req, res) => {
   const user = require("../model/users"); // Import the user model
-  const { email, currentPassword, newPassword } = req.body.updateData;
+  const { error, value } = changePasswordSchema.validate(req.body.updateData); // Validate the request body
+  if (error) {
+    return res.status(400).json({
+      message: `Validation error: ${error.details[0].message}`,
+    });
+  }
+  const { email, currentPassword, newPassword } = value; // Destructure validated values
 
   try {
     // Check if user exists by email
