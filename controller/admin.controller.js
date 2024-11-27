@@ -1,99 +1,76 @@
 require("dotenv").config();
 const nodemailer = require("nodemailer");
-const { exec } = require("child_process");
 const jwt = require("jsonwebtoken");
+const {
+  signupSchema,
+  resetPasswordSchema,
+  forgotPasswordSchema,
+} = require("../validations/admin.schema");
 exports.test = (req, res) => {
   res.send("Welcome to fitness 1.3");
 };
 
 exports.signup = async (req, res) => {
-  const user = require("../model/users");
-  const newData = req.body;
-  const { username, password, email, height, weight } = newData;
-  // Check if the username or email is already in use
-  const existingUser = await user.findOne({
-    $or: [{ email }, { username }],
-  });
+  try {
+    // Validate request payload
+    const { error, value } = signupSchema.validate(req.body);
 
-  if (existingUser) {
+    if (error) {
+      return res.status(400).json({
+        message: `Validation error: ${error.details[0].message}`,
+      });
+    }
+
+    // Destructure validated values
+    const { username, password, email, height, weight } = value;
+
+    // Check if the username or email is already in use
+    const existingUser = await user.findOne({
+      $or: [{ email }, { username }],
+    });
+
+    if (existingUser) {
+      return res.status(400).json({
+        message:
+          existingUser.email === email
+            ? "Email is already in use"
+            : "Username is already in use",
+      });
+    }
+
+    // Save the new user
+    const newUser = new user({ username, password, email, height, weight });
+
+    const savedUser = await newUser.save();
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: savedUser._id, email: savedUser.email },
+      process.env.JWT_SECRET
+    );
+
+    return res.status(201).json({
+      name: savedUser.username,
+      profilePic: savedUser.profilePicture || null,
+      token,
+      message: "success",
+      id: savedUser._id,
+    });
+  } catch (err) {
+    console.error("Signup error: ", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  const { error, value } = resetPasswordSchema.validate(req.body);
+  if (error) {
     return res.status(400).json({
-      message:
-        existingUser.email === email
-          ? "Email is already in use"
-          : "Username is already in use",
+      message: `Validation error: ${error.details[0].message}`,
     });
   }
-  user.findOne({ email }).then((response) => {
-    if (response) {
-      res.send({
-        message: "User is already existed",
-      });
-    } else {
-      const newUser = new user(newData);
-      newUser
-        .save()
-        .then(async (savedUser) => {
-          // Generate JWT token without expiry
-          const token = jwt.sign(
-            {
-              id: savedUser._id,
-              email: savedUser.email,
-            },
-            process.env.JWT_SECRET // Secret key from environment variables
-          );
+  const { email, newPassword } = value;
 
-          // for (const row of jsonData) {
-          //   // Accessing columns with exact key names (based on inspection of console logs)
-          //   const foodName = row["__EMPTY_1"] || "";
-          //   const kcal = row["Energi (kcal)"] || null;
-          //   const protein = row["Protein"] || null;
-          //   const water = row["Vand"] || null;
-          //   const mineral = row["Mineral"] || 0;
-
-          //   // Check if all values are non-null and have valid data
-          //   if (
-          //     foodName &&
-          //     kcal !== null &&
-          //     protein !== null &&
-          //     water !== null &&
-          //     mineral !== null
-          //   ) {
-          //     // Create and save only if all fields have valid values
-          //     const newDietItem = new dietMenu({
-          //       foodName,
-          //       kcal,
-          //       protein,
-          //       water,
-          //       mineral,
-          //     });
-          //     await newDietItem.save();
-          //   } else {
-          //     // Log rows that are incomplete
-          //     console.log("Incomplete Data Skipped:", {
-          //       foodName,
-          //       kcal,
-          //       protein,
-          //       water,
-          //       mineral,
-          //     });
-          //   }
-          // }
-          res.send({
-            name: savedUser.username,
-            profilePic: savedUser.profilePicture,
-            token,
-            message: "success",
-            id: savedUser._id,
-          });
-        })
-        .catch((err) => {
-          console.log("err: ", err);
-        });
-    }
-  });
-};
-exports.resetPassword = async (req, res) => {
-  const { email, newPassword } = req.body;
   const user = require("../model/users");
 
   user
@@ -128,7 +105,14 @@ exports.resetPassword = async (req, res) => {
     });
 };
 exports.forgotPassword = async (req, res) => {
-  const { email } = req.body;
+  const { error, value } = forgotPasswordSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({
+      message: `Validation error: ${error.details[0].message}`,
+    });
+  }
+
+  const { email } = value;
   const user = require("../model/users");
   // Create the nodemailer transporter using environment variables
   const transporter = nodemailer.createTransport({
