@@ -926,3 +926,66 @@ exports.exerciseKeywords = [
   "training",
   "routine",
 ];
+
+exports.SUPPORT_QUESTIONS = [
+  {
+    id: 1,
+    question: "How can I improve my diet?",
+    answer:
+      "You can improve your diet by eating more fruits and vegetables, whole grains, and lean proteins. Avoid processed foods, sugary drinks, and excessive salt and sugar. Drink plenty of water and limit alcohol consumption.",
+  },
+  {
+    id: 2,
+    question: "What are some healthy snacks I can eat?",
+    answer:
+      "Healthy snacks include fruits, vegetables, nuts, seeds, yogurt, and whole grain crackers. Avoid processed snacks high in sugar, salt, and unhealthy fats.",
+  },
+  {
+    id: 3,
+    question: "How can I lose weight?",
+    answer:
+      "To lose weight, you need to create a calorie deficit by eating fewer calories than you burn. Focus on a balanced diet with plenty of fruits, vegetables, whole grains, and lean proteins. Exercise regularly and stay hydrated.",
+  },
+  {
+    id: 4,
+    question: "What are some good exercises for beginners?",
+    answer:
+      "Good exercises for beginners include walking, jogging, cycling, swimming, and bodyweight exercises like squats, lunges, and push-ups. Start slowly and gradually increase the intensity and duration of your workouts.",
+  },
+  {
+    id: 5,
+    question: "How can I build muscle?",
+    answer:
+      "To build muscle, you need to follow a strength training program that targets all major muscle groups. Focus on compound exercises like squats, deadlifts, bench presses, and rows. Eat a diet rich in protein and calories to support muscle growth.",
+  },
+  {
+    id: 6,
+    question: "How can I improve my flexibility?",
+    answer:
+      "To improve flexibility, you should incorporate stretching exercises into your daily routine. Focus on static stretches that target major muscle groups. Yoga and Pilates are also great ways to improve flexibility.",
+  },
+  {
+    id: 7,
+    question: "What are some good exercises for seniors?",
+    answer:
+      "Good exercises for seniors include walking, swimming, cycling, and gentle strength training exercises with light weights or resistance bands. Yoga and Tai Chi are also great for improving balance and flexibility.",
+  },
+  {
+    id: 8,
+    question: "How can I stay motivated to exercise?",
+    answer:
+      "To stay motivated to exercise, set realistic goals, track your progress, and reward yourself for reaching milestones. Find an exercise buddy or join a group fitness class for social support. Mix up your routine to prevent boredom.",
+  },
+  {
+    id: 9,
+    question: "How can I prevent injuries during exercise?",
+    answer:
+      "To prevent injuries during exercise, warm up before workouts, use proper form and technique, wear appropriate footwear and safety gear, and listen to your body. Gradually increase the intensity and duration of your workouts to avoid overtraining.",
+  },
+  {
+    id: 10,
+    question: "How can I improve my posture?",
+    answer:
+      " To improve your posture, practice good ergonomics at work and home, strengthen your core and back muscles, and stretch regularly. Be mindful of your posture throughout the day and make adjustments as needed.",
+  },
+];
