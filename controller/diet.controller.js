@@ -4,8 +4,8 @@ exports.setDietPlan = async (req, res) => {
   const newData = req.body;
   const updateData = newData.updateData;
   const header = newData.header;
-  const { email, password } = header;
-  user.findOne({ email: email, password: password }).then(async (result) => {
+  const { email } = header;
+  user.findOne({ email: email }).then(async (result) => {
     if (result === null) {
       res.send({
         message: "User is not registed.",
@@ -474,7 +474,6 @@ exports.setTargetKcal = async (req, res) => {
   const targetkcalModel = require("../model/targetkcal");
   const userlist = await userModel.findOne({
     email: header.email,
-    password: header.password,
   });
 
   const searchResult = await targetkcalModel.findOne({ userid: userlist._id });
@@ -578,8 +577,8 @@ exports.updateDietStatus = async (req, res) => {
   const user = require("../model/users");
   const diet = require("../model/diet");
   const { header, updateData } = req.body;
-  const { email, password } = header;
-  user.findOne({ email: email, password: password }).then(async (result) => {
+  const { email } = header;
+  user.findOne({ email: email }).then(async (result) => {
     if (result === null) {
       res.send({
         message: "User is not registed.",

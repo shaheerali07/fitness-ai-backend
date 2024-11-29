@@ -25,11 +25,11 @@ exports.setExerciseLogs = async (req, res) => {
   const header = newData.header;
   const updateData = newData.updateData;
 
-  const { email, password } = header;
+  const { email } = header;
 
   let state = true;
 
-  user.findOne({ email, password }).then((result) => {
+  user.findOne({ email }).then((result) => {
     const newlog = new logs({
       ...updateData,
       userid: result._id,
@@ -47,16 +47,8 @@ exports.updateExercisePlan = async (req, res) => {
   const exerciseModel = require("../model/exercise");
   const logsModel = require("../model/logs");
   const userModel = require("../model/users");
-  const {
-    _id,
-    exerciseStatusIndex,
-    hours,
-    minutes,
-    seconds,
-    counter,
-    email,
-    password,
-  } = req.body;
+  const { _id, exerciseStatusIndex, hours, minutes, seconds, counter, email } =
+    req.body;
 
   try {
     // Find the exercise document by ID
@@ -103,7 +95,7 @@ exports.updateExercisePlan = async (req, res) => {
     exerciseEntry.exerciseType.exerciseStatus[exerciseStatusIndex] = "complete";
     await exerciseEntry.save();
 
-    const user = await userModel.findOne({ email, password });
+    const user = await userModel.findOne({ email });
 
     if (!user) {
       return res.status(404).send({ message: "User not found." });
@@ -127,13 +119,13 @@ exports.setExercisePlan = (req, res) => {
   const newData = req.body;
 
   const header = newData.header;
-  const { email, password, shouldDelteLogs } = header;
+  const { email, shouldDelteLogs } = header;
   const updateData = newData.updateData;
 
   if (updateData.year === "") return;
 
   user
-    .findOne({ email: email, password: password })
+    .findOne({ email: email })
     .then(async (result) => {
       if (result === null) {
         res.send({
@@ -239,12 +231,12 @@ exports.getWeeklyExerciseHistory = async (req, res) => {
 
   const header = req.query.header;
   const updateData = req.query.updateData;
-  const { email, password } = header;
+  const { email } = header;
   const year = updateData.year;
   const month = updateData.month;
   const date = updateData.date;
 
-  const userlist = await user.findOne({ email: email, password: password });
+  const userlist = await user.findOne({ email: email });
   if (!userlist) {
     return res.status(404).json({ message: "User not found." });
   }

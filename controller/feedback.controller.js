@@ -3,10 +3,10 @@ const { SUPPORT_QUESTIONS } = require("../static/data");
 exports.askSupport = async (req, res) => {
   const header = req.body.header;
   const updateData = req.body.updateData;
-  const { email, password } = header;
+  const { email } = header;
   const feedback = require("../model/feedback");
   const users = require("../model/users");
-  const resultUser = await users.findOne({ email: email, password: password });
+  const resultUser = await users.findOne({ email: email });
   if (resultUser === null) {
     res.send({
       message: "user not found",
