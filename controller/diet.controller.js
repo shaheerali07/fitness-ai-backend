@@ -420,39 +420,19 @@ exports.getWeeklyTotalStats = async (req, res) => {
     // Parse and decompose startDate and endDate
     const startOfRange = moment(startDate, "YYYY-MM-DD");
     const endOfRange = moment(endDate, "YYYY-MM-DD");
-
     // Construct query for separate year, month, and date fields
     const query = {
-      userid: userId,
-      $or: [
-        // Same year and same month
-        {
-          year: startOfRange.year().toString(),
-          month: (startOfRange.month() + 1).toString().padStart(2, "0"),
-          date: {
-            $gte: startOfRange.date().toString(),
-            $lte: endOfRange.date().toString(),
-          },
-        },
-        // Same year, spanning across months
-        {
-          year: startOfRange.year().toString(),
-          month: {
-            $gt: (startOfRange.month() + 1).toString().padStart(2, "0"),
-          },
-        },
-        {
-          year: endOfRange.year().toString(),
-          month: { $lt: (endOfRange.month() + 1).toString().padStart(2, "0") },
-        },
-        // Spanning across years
-        {
-          year: {
-            $gt: startOfRange.year().toString(),
-            $lt: endOfRange.year().toString(),
-          },
-        },
-      ],
+      $expr: {
+        $and: [
+          { $eq: ["$userid", userId] },
+          { $gte: [{ $toInt: "$year" }, startOfRange.year()] },
+          { $lte: [{ $toInt: "$year" }, endOfRange.year()] },
+          { $gte: [{ $toInt: "$month" }, startOfRange.month() + 1] },
+          { $lte: [{ $toInt: "$month" }, endOfRange.month() + 1] },
+          { $gte: [{ $toInt: "$date" }, startOfRange.date()] },
+          { $lte: [{ $toInt: "$date" }, endOfRange.date()] },
+        ],
+      },
     };
 
     // Query the database

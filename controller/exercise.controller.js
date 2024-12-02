@@ -291,37 +291,50 @@ exports.getCompletedExercisePercentage = async (req, res) => {
     const startOfRange = moment(startDate, "YYYY-MM-DD");
     const endOfRange = moment(endDate, "YYYY-MM-DD");
     // Construct query for separate year, month, and date fields
+    // const query = {
+    //   userid: userId,
+    //   $or: [
+    //     // Same year and same month
+    //     {
+    //       year: startOfRange.year().toString(),
+    //       month: (startOfRange.month() + 1).toString().padStart(2, "0"),
+    //       date: {
+    //         $gte: startOfRange.date().toString(),
+    //         $lte: endOfRange.date().toString(),
+    //       },
+    //     },
+    //     // Same year, spanning across months
+    //     {
+    //       year: startOfRange.year().toString(),
+    //       month: {
+    //         $gt: (startOfRange.month() + 1).toString().padStart(2, "0"),
+    //       },
+    //     },
+    //     {
+    //       year: endOfRange.year().toString(),
+    //       month: { $lt: (endOfRange.month() + 1).toString().padStart(2, "0") },
+    //     },
+    //     // Spanning across years
+    //     {
+    //       year: {
+    //         $gt: startOfRange.year().toString(),
+    //         $lt: endOfRange.year().toString(),
+    //       },
+    //     },
+    //   ],
+    // };
     const query = {
-      userid: userId,
-      $or: [
-        // Same year and same month
-        {
-          year: startOfRange.year().toString(),
-          month: (startOfRange.month() + 1).toString().padStart(2, "0"),
-          date: {
-            $gte: startOfRange.date().toString(),
-            $lte: endOfRange.date().toString(),
-          },
-        },
-        // Same year, spanning across months
-        {
-          year: startOfRange.year().toString(),
-          month: {
-            $gt: (startOfRange.month() + 1).toString().padStart(2, "0"),
-          },
-        },
-        {
-          year: endOfRange.year().toString(),
-          month: { $lt: (endOfRange.month() + 1).toString().padStart(2, "0") },
-        },
-        // Spanning across years
-        {
-          year: {
-            $gt: startOfRange.year().toString(),
-            $lt: endOfRange.year().toString(),
-          },
-        },
-      ],
+      $expr: {
+        $and: [
+          { $eq: ["$userid", userId] },
+          { $gte: [{ $toInt: "$year" }, startOfRange.year()] },
+          { $lte: [{ $toInt: "$year" }, endOfRange.year()] },
+          { $gte: [{ $toInt: "$month" }, startOfRange.month() + 1] },
+          { $lte: [{ $toInt: "$month" }, endOfRange.month() + 1] },
+          { $gte: [{ $toInt: "$date" }, startOfRange.date()] },
+          { $lte: [{ $toInt: "$date" }, endOfRange.date()] },
+        ],
+      },
     };
     const exercises = await ExerciseModel.find(query);
 
@@ -382,37 +395,50 @@ exports.getTotalExerciseTime = async (req, res) => {
     const startOfRange = moment(startDate, "YYYY-MM-DD");
     const endOfRange = moment(endDate, "YYYY-MM-DD");
     // Construct query for separate year, month, and date fields
+    // const query = {
+    //   userid: userId,
+    //   $or: [
+    //     // Same year and same month
+    //     {
+    //       year: startOfRange.year().toString(),
+    //       month: (startOfRange.month() + 1).toString().padStart(2, "0"),
+    //       date: {
+    //         $gte: startOfRange.date().toString(),
+    //         $lte: endOfRange.date().toString(),
+    //       },
+    //     },
+    //     // Same year, spanning across months
+    //     {
+    //       year: startOfRange.year().toString(),
+    //       month: {
+    //         $gt: (startOfRange.month() + 1).toString().padStart(2, "0"),
+    //       },
+    //     },
+    //     {
+    //       year: endOfRange.year().toString(),
+    //       month: { $lt: (endOfRange.month() + 1).toString().padStart(2, "0") },
+    //     },
+    //     // Spanning across years
+    //     {
+    //       year: {
+    //         $gt: startOfRange.year().toString(),
+    //         $lt: endOfRange.year().toString(),
+    //       },
+    //     },
+    //   ],
+    // };
     const query = {
-      userid: userId,
-      $or: [
-        // Same year and same month
-        {
-          year: startOfRange.year().toString(),
-          month: (startOfRange.month() + 1).toString().padStart(2, "0"),
-          date: {
-            $gte: startOfRange.date().toString(),
-            $lte: endOfRange.date().toString(),
-          },
-        },
-        // Same year, spanning across months
-        {
-          year: startOfRange.year().toString(),
-          month: {
-            $gt: (startOfRange.month() + 1).toString().padStart(2, "0"),
-          },
-        },
-        {
-          year: endOfRange.year().toString(),
-          month: { $lt: (endOfRange.month() + 1).toString().padStart(2, "0") },
-        },
-        // Spanning across years
-        {
-          year: {
-            $gt: startOfRange.year().toString(),
-            $lt: endOfRange.year().toString(),
-          },
-        },
-      ],
+      $expr: {
+        $and: [
+          { $eq: ["$userid", userId] },
+          { $gte: [{ $toInt: "$year" }, startOfRange.year()] },
+          { $lte: [{ $toInt: "$year" }, endOfRange.year()] },
+          { $gte: [{ $toInt: "$month" }, startOfRange.month() + 1] },
+          { $lte: [{ $toInt: "$month" }, endOfRange.month() + 1] },
+          { $gte: [{ $toInt: "$date" }, startOfRange.date()] },
+          { $lte: [{ $toInt: "$date" }, endOfRange.date()] },
+        ],
+      },
     };
     // Query the logexercise collection to find exercises within the provided date range
     const logExercises = await LogExerciseModel.find(query);
@@ -460,34 +486,47 @@ exports.getWeeklyExerciseStats = async (req, res) => {
     // Parse the provided startDate and endDate from req.query to moment objects
     const startOfWeek = moment(startDate, "YYYY-MM-DD").startOf("day");
     const endOfWeek = moment(endDate, "YYYY-MM-DD").endOf("day");
-
+    const query = {
+      $expr: {
+        $and: [
+          { $eq: ["$userid", userId] },
+          { $gte: [{ $toInt: "$year" }, startOfWeek.year()] },
+          { $lte: [{ $toInt: "$year" }, endOfWeek.year()] },
+          { $gte: [{ $toInt: "$month" }, startOfWeek.month() + 1] },
+          { $lte: [{ $toInt: "$month" }, endOfWeek.month() + 1] },
+          { $gte: [{ $toInt: "$date" }, startOfWeek.date()] },
+          { $lte: [{ $toInt: "$date" }, endOfWeek.date()] },
+        ],
+      },
+    };
+    // {
+    //   userid: userId,
+    //   $or: [
+    //     {
+    //       year: startOfWeek.year(),
+    //       month: startOfWeek.month() + 1,
+    //       date: { $gte: startOfWeek.date() },
+    //     },
+    //     {
+    //       year: endOfWeek.year(),
+    //       month: endOfWeek.month() + 1,
+    //       date: { $lte: endOfWeek.date() },
+    //     },
+    //     {
+    //       year: startOfWeek.year(),
+    //       month: { $gt: startOfWeek.month() + 1 },
+    //     },
+    //     {
+    //       year: endOfWeek.year(),
+    //       month: { $lt: endOfWeek.month() + 1 },
+    //     },
+    //     {
+    //       year: { $gt: startOfWeek.year(), $lt: endOfWeek.year() },
+    //     },
+    //   ],
+    // }
     // Retrieve records that match the date range criteria
-    const logExercises = await LogExerciseModel.find({
-      userid: userId,
-      $or: [
-        {
-          year: startOfWeek.year(),
-          month: startOfWeek.month() + 1,
-          date: { $gte: startOfWeek.date() },
-        },
-        {
-          year: endOfWeek.year(),
-          month: endOfWeek.month() + 1,
-          date: { $lte: endOfWeek.date() },
-        },
-        {
-          year: startOfWeek.year(),
-          month: { $gt: startOfWeek.month() + 1 },
-        },
-        {
-          year: endOfWeek.year(),
-          month: { $lt: endOfWeek.month() + 1 },
-        },
-        {
-          year: { $gt: startOfWeek.year(), $lt: endOfWeek.year() },
-        },
-      ],
-    });
+    const logExercises = await LogExerciseModel.find(query);
 
     // console.log("Log Exercises:", logExercises);
 
@@ -570,37 +609,50 @@ exports.getTotals = async (req, res) => {
     const startOfRange = moment(startDate, "YYYY-MM-DD");
     const endOfRange = moment(endDate, "YYYY-MM-DD");
     // Construct query for separate year, month, and date fields
+    // const query = {
+    //   userid: userId,
+    //   $or: [
+    //     // Same year and same month
+    //     {
+    //       year: startOfRange.year().toString(),
+    //       month: (startOfRange.month() + 1).toString().padStart(2, "0"),
+    //       date: {
+    //         $gte: startOfRange.date().toString(),
+    //         $lte: endOfRange.date().toString(),
+    //       },
+    //     },
+    //     // Same year, spanning across months
+    //     {
+    //       year: startOfRange.year().toString(),
+    //       month: {
+    //         $gt: (startOfRange.month() + 1).toString().padStart(2, "0"),
+    //       },
+    //     },
+    //     {
+    //       year: endOfRange.year().toString(),
+    //       month: { $lt: (endOfRange.month() + 1).toString().padStart(2, "0") },
+    //     },
+    //     // Spanning across years
+    //     {
+    //       year: {
+    //         $gt: startOfRange.year().toString(),
+    //         $lt: endOfRange.year().toString(),
+    //       },
+    //     },
+    //   ],
+    // };
     const query = {
-      userid: userId,
-      $or: [
-        // Same year and same month
-        {
-          year: startOfRange.year().toString(),
-          month: (startOfRange.month() + 1).toString().padStart(2, "0"),
-          date: {
-            $gte: startOfRange.date().toString(),
-            $lte: endOfRange.date().toString(),
-          },
-        },
-        // Same year, spanning across months
-        {
-          year: startOfRange.year().toString(),
-          month: {
-            $gt: (startOfRange.month() + 1).toString().padStart(2, "0"),
-          },
-        },
-        {
-          year: endOfRange.year().toString(),
-          month: { $lt: (endOfRange.month() + 1).toString().padStart(2, "0") },
-        },
-        // Spanning across years
-        {
-          year: {
-            $gt: startOfRange.year().toString(),
-            $lt: endOfRange.year().toString(),
-          },
-        },
-      ],
+      $expr: {
+        $and: [
+          { $eq: ["$userid", userId] },
+          { $gte: [{ $toInt: "$year" }, startOfRange.year()] },
+          { $lte: [{ $toInt: "$year" }, endOfRange.year()] },
+          { $gte: [{ $toInt: "$month" }, startOfRange.month() + 1] },
+          { $lte: [{ $toInt: "$month" }, endOfRange.month() + 1] },
+          { $gte: [{ $toInt: "$date" }, startOfRange.date()] },
+          { $lte: [{ $toInt: "$date" }, endOfRange.date()] },
+        ],
+      },
     };
     const exercises = await LogExerciseModel.find(query);
 
